@@ -303,10 +303,8 @@
 
         function calculate() {
             try {
-                // Заменяем × на * для вычисления
                 let expression = currentInput.replace(/×/g, '*');
                 
-                // Проверяем на деление на ноль
                 if (expression.includes('/0') && !expression.includes('/0.')) {
                     currentInput = 'Ошибка';
                     updateDisplay();
@@ -351,7 +349,6 @@
             updateDisplay();
         }
 
-        // Поддержка клавиатуры
         document.addEventListener('keydown', function(event) {
             const key = event.key;
             

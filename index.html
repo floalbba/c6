@@ -5,6 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Калькулятор</title>
     <style>
+        :root {
+            --bg-page: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-calc: #ffffff;
+            --shadow-calc: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --bg-display: #1a1a1a;
+            --text-display: #ffffff;
+            --bg-btn: #f0f0f0;
+            --bg-btn-hover: #e0e0e0;
+            --text-btn: #333;
+            --shadow-btn: 0 5px 15px rgba(0, 0, 0, 0.2);
+            --operator: #667eea;
+            --operator-hover: #5568d3;
+            --equals: #764ba2;
+            --equals-hover: #653a8a;
+            --clear: #ff6b6b;
+            --clear-hover: #ee5a5a;
+            --text-toggle: #333;
+        }
+
+        body.dark {
+            --bg-page: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --bg-calc: #0f3460;
+            --shadow-calc: 0 20px 60px rgba(0, 0, 0, 0.6);
+            --bg-display: #1a1a1a;
+            --text-display: #e8e8e8;
+            --bg-btn: #1a1a2e;
+            --bg-btn-hover: #252542;
+            --text-btn: #e8e8e8;
+            --shadow-btn: 0 5px 15px rgba(0, 0, 0, 0.4);
+            --operator: #667eea;
+            --operator-hover: #7c8ef5;
+            --equals: #764ba2;
+            --equals-hover: #8b5cb8;
+            --clear: #c0392b;
+            --clear-hover: #e74c3c;
+            --text-toggle: #e8e8e8;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,22 +55,56 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-page);
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .calculator {
-            background: #ffffff;
+            background: var(--bg-calc);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-calc);
             padding: 30px;
             max-width: 400px;
             width: 100%;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calculator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .theme-toggle {
+            background: var(--bg-btn);
+            color: var(--text-btn);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-btn-hover);
+            transform: translateY(-1px);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
         }
 
         .display {
-            background: #1a1a1a;
-            color: #ffffff;
+            background: var(--bg-display);
+            color: var(--text-display);
             font-size: 2.5rem;
             padding: 20px;
             text-align: right;
@@ -44,6 +116,7 @@
             justify-content: flex-end;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .buttons {
@@ -53,7 +126,7 @@
         }
 
         button {
-            background: #f0f0f0;
+            background: var(--bg-btn);
             border: none;
             border-radius: 10px;
             font-size: 1.5rem;
@@ -61,13 +134,13 @@
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 600;
-            color: #333;
+            color: var(--text-btn);
         }
 
         button:hover {
-            background: #e0e0e0;
+            background: var(--bg-btn-hover);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-btn);
         }
 
         button:active {
@@ -76,30 +149,30 @@
         }
 
         .operator {
-            background: #667eea;
+            background: var(--operator);
             color: #ffffff;
         }
 
         .operator:hover {
-            background: #5568d3;
+            background: var(--operator-hover);
         }
 
         .equals {
-            background: #764ba2;
+            background: var(--equals);
             color: #ffffff;
         }
 
         .equals:hover {
-            background: #653a8a;
+            background: var(--equals-hover);
         }
 
         .clear {
-            background: #ff6b6b;
+            background: var(--clear);
             color: #ffffff;
         }
 
         .clear:hover {
-            background: #ee5a5a;
+            background: var(--clear-hover);
         }
 
         .zero {
@@ -109,6 +182,13 @@
 </head>
 <body>
     <div class="calculator">
+        <div class="calculator-header">
+            <span style="width: 1px; visibility: hidden;">0</span>
+            <button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Переключить тему">
+                <span id="themeIcon"></span>
+                <span id="themeLabel">Тёмная</span>
+            </button>
+        </div>
         <div class="display" id="display">0</div>
         <div class="buttons">
             <button class="clear" onclick="clearDisplay()">C</button>
@@ -140,6 +220,42 @@
         let display = document.getElementById('display');
         let currentInput = '0';
         let shouldResetDisplay = false;
+
+        const SUN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+        const MOON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+        function isDark() {
+            return document.body.classList.contains('dark');
+        }
+
+        function applyTheme(dark) {
+            document.body.classList.toggle('dark', dark);
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+            if (dark) {
+                icon.innerHTML = SUN_SVG;
+                label.textContent = 'Светлая';
+            } else {
+                icon.innerHTML = MOON_SVG;
+                label.textContent = 'Тёмная';
+            }
+            try { localStorage.setItem('calculator-theme', dark ? 'dark' : 'light'); } catch (e) {}
+        }
+
+        function toggleTheme() {
+            applyTheme(!isDark());
+        }
+
+        (function initTheme() {
+            let dark = false;
+            try {
+                const saved = localStorage.getItem('calculator-theme');
+                if (saved === 'dark') dark = true;
+                else if (saved === 'light') dark = false;
+                else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) dark = true;
+            } catch (e) {}
+            applyTheme(dark);
+        })();
 
         function updateDisplay() {
             display.textContent = currentInput;
