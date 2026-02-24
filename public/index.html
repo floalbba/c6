@@ -178,6 +178,26 @@
         .zero {
             grid-column: span 2;
         }
+
+        .sqrt {
+            grid-column: span 2;
+            background: var(--operator);
+            color: #ffffff;
+        }
+
+        .sqrt:hover {
+            background: var(--operator-hover);
+        }
+
+        .power {
+            grid-column: span 2;
+            background: var(--operator);
+            color: #ffffff;
+        }
+
+        .power:hover {
+            background: var(--operator-hover);
+        }
     </style>
 </head>
 <body>
@@ -191,6 +211,8 @@
         </div>
         <div class="display" id="display">0</div>
         <div class="buttons">
+            <button type="button" class="sqrt" onclick="squareRoot()" title="Квадратный корень">√</button>
+            <button type="button" class="power" onclick="appendOperator('^')" title="Возведение в степень">x^y</button>
             <button class="clear" onclick="clearDisplay()">C</button>
             <button class="operator" onclick="appendOperator('/')">/</button>
             <button class="operator" onclick="appendOperator('*')">×</button>
@@ -293,7 +315,7 @@
             }
             
             const lastChar = currentInput[currentInput.length - 1];
-            if (['+', '-', '*', '/'].includes(lastChar)) {
+            if (['+', '-', '*', '/', '^'].includes(lastChar)) {
                 currentInput = currentInput.slice(0, -1) + operator;
             } else {
                 currentInput += operator;
@@ -303,7 +325,7 @@
 
         function calculate() {
             try {
-                let expression = currentInput.replace(/×/g, '*');
+                let expression = currentInput.replace(/×/g, '*').replace(/\^/g, '**');
                 
                 if (expression.includes('/0') && !expression.includes('/0.')) {
                     currentInput = 'Ошибка';
@@ -347,6 +369,30 @@
                 currentInput = '0';
             }
             updateDisplay();
+        }
+
+        function squareRoot() {
+            if (currentInput === 'Ошибка') {
+                clearDisplay();
+                return;
+            }
+            const num = parseFloat(currentInput.replace(',', '.'));
+            if (isNaN(num)) {
+                currentInput = 'Ошибка';
+                updateDisplay();
+                shouldResetDisplay = true;
+                return;
+            }
+            if (num < 0) {
+                currentInput = 'Ошибка';
+                updateDisplay();
+                shouldResetDisplay = true;
+                return;
+            }
+            const result = Math.sqrt(num);
+            currentInput = result % 1 === 0 ? result.toString() : parseFloat(result.toPrecision(12)).toString();
+            updateDisplay();
+            shouldResetDisplay = true;
         }
 
         document.addEventListener('keydown', function(event) {
